@@ -73,7 +73,14 @@ class LoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         if "@" in username_or_email:
-            user = User.objects.filter(email__iexact=username_or_email).first()
+            # If multiple accounts share this email, use the one with the most data (main account).
+            candidates = list(User.objects.filter(email__iexact=username_or_email))
+            if not candidates:
+                user = None
+            elif len(candidates) == 1:
+                user = candidates[0]
+            else:
+                user = max(candidates, key=lambda u: u.time_entries.count() + u.entry_categories.count())
         else:
             user = User.objects.filter(username__iexact=username_or_email).first()
         if user and user.check_password(password):

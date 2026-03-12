@@ -108,6 +108,24 @@ If you get **500** or other errors: check Vercel’s **Functions** or **Logs** f
 
 - [ ] Backend pushed to GitHub (`git push origin main`)
 - [ ] Vercel deployment finished (green)
+- [ ] Vercel **Root Directory** set to `backend` (since the repo only has backend in `backend/`)
 - [ ] Migration run on production DB (`cd backend` then `DATABASE_URL=... python3 manage.py migrate`)
 - [ ] App using Vercel API URL (`mobile/.env` or `EXPO_PUBLIC_API_URL=...` when starting)
 - [ ] Test: Forgot password → send code → reset password → log in
+
+---
+
+## Troubleshooting 404 on forgot-password
+
+1. **Confirm the app is calling Vercel**  
+   In the `mobile/` folder you need either:
+   - A `.env` file with: `EXPO_PUBLIC_API_URL=https://YOUR-PROJECT.vercel.app/api`  
+   or
+   - Start the app with: `EXPO_PUBLIC_API_URL=https://YOUR-PROJECT.vercel.app/api npx expo start`  
+   Then **fully close and restart the app** so it picks up the URL (no caching of the old value).
+
+2. **Confirm the backend route exists on Vercel**  
+   In a browser or with curl, open:  
+   `https://YOUR-PROJECT.vercel.app/api/auth/forgot-password/`  
+   - If you get **405 Method Not Allowed**: the route is there; the app might be using the wrong URL or the app build is using an old API URL.  
+   - If you get **404**: the deployment may not have the Django app (check Vercel **Root Directory** is `backend`) or the deploy failed; check **Deployments** → latest → **Building** / **Functions** and the **Logs** for errors.

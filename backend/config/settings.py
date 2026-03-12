@@ -65,7 +65,13 @@ TEMPLATES = [
 _db_url = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
 if _db_url:
     import dj_database_url
-    DATABASES = {"default": dj_database_url.config(default=_db_url, conn_max_age=600, conn_health_checks=True)}
+    _db_config = dj_database_url.config(default=_db_url, conn_max_age=600, conn_health_checks=True)
+    if _db_config and not _db_config.get("NAME"):
+        _db_config["NAME"] = "verceldb"
+    if _db_config:
+        DATABASES = {"default": _db_config}
+    else:
+        DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 else:
     DATABASES = {
         "default": {
