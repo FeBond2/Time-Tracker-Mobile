@@ -28,6 +28,18 @@ class APIRootView(APIView):
         return Response({"ok": True, "message": "Time Tracker API"})
 
 
+class DebugPathView(APIView):
+    """Temporary: see what path Vercel passes to Django. Remove after fixing 404."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({
+            "path": request.path,
+            "path_info": request.META.get("PATH_INFO", ""),
+            "script_name": request.META.get("SCRIPT_NAME", ""),
+        })
+
+
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     return {"refresh": str(refresh), "access": str(refresh.access_token)}

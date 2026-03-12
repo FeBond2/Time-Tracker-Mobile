@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path("", views.APIRootView.as_view()),
+    path("debug-path/", views.DebugPathView.as_view()),
     path("auth/register/", views.RegisterView.as_view()),
     path("auth/login/", TokenObtainPairView.as_view()),
     path("auth/token/refresh/", TokenRefreshView.as_view()),
