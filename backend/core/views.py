@@ -60,6 +60,36 @@ class RegisterView(APIView):
         )
 
 
+class LoginView(APIView):
+    """Login with username or email + password. Returns JWT access and refresh tokens."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username_or_email = (request.data.get("username") or "").strip()
+        password = request.data.get("password")
+        if not username_or_email or password is None:
+            return Response(
+                {"detail": "username and password are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if "@" in username_or_email:
+            user = User.objects.filter(email__iexact=username_or_email).first()
+        else:
+            user = User.objects.filter(username__iexact=username_or_email).first()
+        if user and user.check_password(password):
+            if not user.is_active:
+                return Response(
+                    {"detail": "No active account found with the given credentials."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            tokens = get_tokens_for_user(user)
+            return Response(tokens)
+        return Response(
+            {"detail": "No active account found with the given credentials."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
