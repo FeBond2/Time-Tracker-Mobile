@@ -5,7 +5,7 @@
   ],
   "functions": {
     "api/index.py": {
-      "excludeFiles": "{.venv/**,**/tests/**,**/migrations/**,**/__pycache__/**}"
+      "excludeFiles": "{.venv/**,**/tests/**,**/__pycache__/**}"
     }
   }
 }

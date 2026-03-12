@@ -9,7 +9,7 @@ django.setup()  # Required before call_command or get_wsgi_application
 from django.core.wsgi import get_wsgi_application
 from django.core.management import call_command
 
-# Run migrations at runtime (Vercel has DB env at runtime). Don't crash the function if it fails.
+# Run migrations at runtime so core_passwordresetcode etc. exist.
 try:
     call_command("migrate", "--noinput")
 except Exception as e:
