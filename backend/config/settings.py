@@ -61,10 +61,11 @@ TEMPLATES = [
     },
 ]
 
-# Use Postgres when DATABASE_URL is set (e.g. Vercel, Railway, Render); otherwise SQLite.
-if os.environ.get("DATABASE_URL"):
+# Use Postgres when DATABASE_URL or POSTGRES_URL is set (Vercel injects POSTGRES_URL from the store).
+_db_url = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
+if _db_url:
     import dj_database_url
-    DATABASES = {"default": dj_database_url.config(conn_max_age=600, conn_health_checks=True)}
+    DATABASES = {"default": dj_database_url.config(default=_db_url, conn_max_age=600, conn_health_checks=True)}
 else:
     DATABASES = {
         "default": {
