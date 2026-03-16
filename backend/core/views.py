@@ -1,3 +1,4 @@
+import os
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -130,8 +131,11 @@ class ForgotPasswordRequestView(APIView):
                 logger.exception("[Password reset] Failed to send email: %s", e)
                 if settings.DEBUG:
                     print(f"[Password reset] Code for {user.email}: {code}")
+                payload = {"detail": "We couldn't send the reset email. Please try again later."}
+                if os.environ.get("EXPOSE_EMAIL_ERROR", "").lower() in ("1", "true", "yes"):
+                    payload["email_error"] = str(e)
                 return Response(
-                    {"detail": "We couldn't send the reset email. Please try again later."},
+                    payload,
                     status=status.HTTP_503_SERVICE_UNAVAILABLE,
                 )
         return Response({"detail": "If an account exists with that email, you will receive a reset code shortly."})
