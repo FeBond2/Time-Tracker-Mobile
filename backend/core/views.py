@@ -122,12 +122,18 @@ class ForgotPasswordRequestView(APIView):
             subject = "Time Tracker — Password reset code"
             message = f"Your password reset code is: {code}\n\nIt expires in 1 hour. If you didn't request this, you can ignore this email."
             from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@timetracker.app")
+            import logging
+            logger = logging.getLogger(__name__)
             try:
                 send_mail(subject, message, from_email, [user.email], fail_silently=False)
-            except Exception:
+            except Exception as e:
+                logger.exception("[Password reset] Failed to send email: %s", e)
                 if settings.DEBUG:
                     print(f"[Password reset] Code for {user.email}: {code}")
-                pass
+                return Response(
+                    {"detail": "We couldn't send the reset email. Please try again later."},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
         return Response({"detail": "If an account exists with that email, you will receive a reset code shortly."})
 
 
